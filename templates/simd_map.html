@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>SIMD + Greenspace Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 700px;
+            width: 100%;
+        }
+
+        /* Interaction Button (Left-Bottom, Larger + Higher) */
+        .left-button {
+            position: absolute;
+            bottom: 60px;        /* Move up, originally 25px */
+            left: 30px;
+            z-index: 9999;
+
+            padding: 16px 30px;  /* Larger button */
+            background: #0057b8;
+            color: white;
+
+            border: none;
+            border-radius: 14px; /* More rounded corners */
+            cursor: pointer;
+
+            font-size: 20px;      /* Larger font */
+            font-weight: bold;
+
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: 0.25s ease;
+        }
+
+        .left-button:hover {
+            background: #003d82;
+            transform: scale(1.08); /* Larger zoom on hover */
+        }
+
+
+        .left-button:hover {
+            background: #003d82;   /* darker blue */
+            transform: scale(1.05); /* slight zoom on hover */
+        }
+
+        /* SIMD Legend */
+        .info.legend {
+            background: white;
+            padding: 8px;
+            line-height: 18px;
+            color: #333;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+            font-size: 13px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.15);
+        }
+
+        .info.legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+
+        /* Popup Card */
+        .popup-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+            font-size: 14px;
+            color: #333;
+            width: 230px;
+        }
+
+        .popup-card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #222;
+        }
+
+        .popup-row-label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Interaction Button -->
+<button class="left-button" onclick="window.location.href='/interaction_map'">
+    Click here for Interactive Map
+</button>
+
+<h2 style="margin-left: 20px;">SIMD 2020 + Greenspaces in Edinburgh</h2>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+<script>
+
+    // -----------------------
+    // BASE MAP
+    // -----------------------
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    });
+
+    var map = L.map('map', {
+        center: [55.95, -3.2],
+        zoom: 11,
+        layers: [osm]
+    });
+
+
+    // -----------------------
+    // SIMD COLORS
+    // -----------------------
+    function getColor(decile_raw) {
+        const d = Number(decile_raw);
+        switch(d) {
+            case 1: return '#8c001a';
+            case 2: return '#c0002f';
+            case 3: return '#e06600';
+            case 4: return '#f2a900';
+            case 5: return '#f7d154';
+            case 6: return '#b7e3ed';
+            case 7: return '#9ccad9';
+            case 8: return '#6aa2ce';
+            case 9: return '#405ba7';
+            case 10: return '#1d1f7a';
+            default: return '#ffffff';
+        }
+    }
+
+    function style(feature) {
+        return {
+            fillColor: getColor(feature.properties.Decilev2),
+            weight: 1,
+            opacity: 1,
+            color: 'white',
+            fillOpacity: 0.6
+        };
+    }
+
+    var simdLayer = L.geoJSON(null, {
+        style: style,
+        onEachFeature: function (feature, layer) {
+            let dz = feature.properties.DataZone;
+            let dec = feature.properties.Decilev2;
+
+            layer.bindPopup(
+                `<div class="popup-card">
+                    <div class="popup-card-title">DataZone ${dz}</div>
+                    <span class="popup-row-label">SIMD Decile:</span> ${dec}
+                </div>`
+            );
+        }
+    });
+
+    fetch("/static/simd_edinburgh.geojson")
+        .then(r => r.json())
+        .then(d => simdLayer.addData(d));
+
+
+    // -----------------------
+    // BLACK MARKER STYLE
+    // -----------------------
+    var blackIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+
+    // -----------------------
+    // GREENSPACE LAYER
+    // -----------------------
+    var greenspaceLayer = L.layerGroup();
+
+    var parks = {{ parks | tojson }};
+    parks.forEach(park => {
+
+        L.marker([park.lat, park.lon], { icon: blackIcon })
+            .bindPopup(
+            `<div class="popup-card">
+                <div class="popup-card-title">${park.name}</div>
+                <span class="popup-row-label">Site ID:</span> ${park.site_id}<br>
+                <span class="popup-row-label">Recreation Index:</span> <b>${park.recreation}</b><br>
+                <span class="popup-row-label">SIMD Decile:</span> ${park.decile}<br>
+                <span class="popup-row-label">Postcode:</span> ${park.postcode}<br>
+                <span class="popup-row-label">Community:</span> ${park.community}
+            </div>`
+            )
+            .addTo(greenspaceLayer);
+
+    });
+
+
+    // -----------------------
+    // LAYER CONTROL
+    // -----------------------
+    var overlayMaps = {
+        "SIMD 2020": simdLayer,
+        "Greenspaces": greenspaceLayer
+    };
+
+    L.control.layers({"OpenStreetMap": osm}, overlayMaps, { collapsed: false }).addTo(map);
+
+
+    // -----------------------
+    // SIMD LEGEND
+    // -----------------------
+    var legend = L.control({position: 'topleft'});
+
+    legend.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'info legend');
+        var labels = [
+            {d: 1, color: '#8c001a', label: 'Most deprived 10%'},
+            {d: 2, color: '#c0002f', label: '2nd'},
+            {d: 3, color: '#e06600', label: '3rd'},
+            {d: 4, color: '#f2a900', label: '4th'},
+            {d: 5, color: '#f7d154', label: '5th'},
+            {d: 6, color: '#b7e3ed', label: '6th'},
+            {d: 7, color: '#9ccad9', label: '7th'},
+            {d: 8, color: '#6aa2ce', label: '8th'},
+            {d: 9, color: '#405ba7', label: '9th'},
+            {d: 10, color: '#1d1f7a', label: 'Least deprived 10%'}
+        ];
+
+        div.innerHTML += '<b>SIMD Deciles</b><br>';
+
+        labels.forEach(item => {
+            div.innerHTML +=
+                `<i style="background:${item.color}"></i> ${item.label}<br>`;
+        });
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+</script>
+</body>
+</html>

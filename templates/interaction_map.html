@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Interaction Map</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+
+    <style>
+        /* Overall layout: left sidebar, right map */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            margin: 16px 20px;
+        }
+
+        .layout {
+            display: flex;
+            align-items: flex-start;
+            padding: 0 20px 20px 20px;
+            box-sizing: border-box;
+        }
+
+        /* Left sidebar */
+        .sidebar {
+            width: 320px;
+            margin-right: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Right map container */
+        #map {
+            flex: 1;
+            height: 700px;
+            min-width: 400px;
+        }
+
+        /* popup card style */
+        .popup-card {
+            background:white; padding:10px; border-radius:8px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.25);
+            width: 240px;
+        }
+        .popup-title { font-weight:bold; font-size:16px; margin-bottom:6px; }
+
+        .popup-row-label { font-weight:bold; }
+
+        /* Back button fixed at bottom left */
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 9999;
+
+            padding: 18px 34px;
+            background:#0057b8;
+            color:white;
+            border:none;
+            border-radius:16px;
+            cursor:pointer;
+            font-size:20px;
+            font-weight:bold;
+            box-shadow:0 4px 14px rgba(0,0,0,0.4);
+            transition:0.25s ease;
+        }
+        .back-button:hover {
+            background:#003d82;
+            transform:scale(1.10);
+        }
+
+        /* MAIN SEARCH BOX */
+        .search-container {
+            width:100%;
+            margin-bottom: 20px;
+        }
+        #search-box {
+            width:100%;
+            background:white;
+            padding:12px 16px;
+            border-radius:12px;
+            box-shadow:0 3px 10px rgba(0,0,0,0.15);
+            font-size:16px;
+            border:1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #suggestions {
+            display:none;
+            background:white;
+            border-radius:8px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.2);
+            margin-top:6px;
+            max-height:300px;
+            overflow-y:auto;
+        }
+        .suggestion-item {
+            padding:12px 16px;
+            cursor:pointer;
+            border-bottom:1px solid #f0f0f0;
+        }
+        .suggestion-item:hover { background:#f5f5f5; }
+
+        /* Ranking search box */
+        .rank-search-container {
+            width:100%;
+            padding:14px;
+            background:white;
+            border-radius:12px;
+            box-shadow:0 3px 12px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .rank-search-container h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .rank-search-container select,
+        .rank-search-container input {
+            width:100%;
+            padding:10px;
+            font-size:14px;
+            margin-bottom:10px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            box-sizing:border-box;
+        }
+
+        .rank-button {
+            width:100%;
+            padding:12px;
+            font-size:16px;
+            background:#c0002f;
+            color:white;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:bold;
+        }
+        .rank-button:hover { background:#8c001a; }
+    </style>
+</head>
+
+<body>
+
+<h2>Interaction Map</h2>
+
+<div class="layout">
+    <!-- Left sidebar -->
+    <div class="sidebar">
+
+        <!-- SEARCH PARK BY NAME -->
+        <div class="search-container">
+            <input id="search-box" type="text" placeholder="Search park by name&" autocomplete="off">
+            <div id="suggestions"></div>
+        </div>
+
+        <!-- RANK SEARCH -->
+        <div class="rank-search-container">
+            <h3>Ranking Search</h3>
+            <select id="rank-type">
+                <option value="">-- Select ranking type --</option>
+                <option value="recreation_highest">Highest Recreation Index</option>
+                <option value="recreation_lowest">Lowest Recreation Index</option>
+                <option value="quality_highest">Highest Facility Quality Score</option>
+                <option value="quality_lowest">Lowest Facility Quality Score</option>
+                <option value="quantity_highest">Highest Quantity & Variety Score</option>
+                <option value="quantity_lowest">Lowest Quantity & Variety Score</option>
+                <option value="safety_highest">Highest Safety Score</option>
+                <option value="safety_lowest">Lowest Safety Score</option>
+                <option value="accessibility_highest">Highest Accessibility Score</option>
+                <option value="accessibility_lowest">Lowest Accessibility Score</option>
+            </select>
+
+            <input id="rank-number" type="number" placeholder="Enter number (e.g., 5)">
+            <button class="rank-button" id="rank-apply">Apply</button>
+        </div>
+
+        <!-- LOCATION & FACILITY SEARCH -->
+        <div class="rank-search-container">
+            <h3>Location & Facility Search</h3>
+            
+            <input id="postcode-input" type="text" placeholder="Enter Edinburgh postcode (e.g., EH1 1LZ)">
+            
+            <select id="facility-select" multiple size="6" style="height: 140px;">
+                <!-- Will be populated from Flask -->
+            </select>
+            <div style="font-size: 11px; color: #666; margin: -8px 0 10px 0;">Hold Ctrl/Cmd to select multiple</div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input id="distance-input" type="number" step="0.1" placeholder="Distance (km)" style="flex: 1;">
+                <button id="nearest-toggle" style="flex: 1; padding: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                    Nearest Only
+                </button>
+            </div>
+            
+            <button class="rank-button" id="location-apply">Apply Search</button>
+        </div>
+    </div>
+
+    <!-- Right map -->
+    <div id="map"></div>
+</div>
+
+<!-- Back Button -->
+<button class="back-button" onclick="window.location.href='/simd_map'">
+    Back to SIMD Map
+</button>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+<script>
+// ======================
+// BASE MAP
+// ======================
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom:19,
+    attribution:"� OpenStreetMap"
+});
+var map = L.map('map', {
+    center:[55.95,-3.2],
+    zoom:11,
+    layers:[osm]
+});
+
+// ======================
+// ICONS
+// ======================
+var blackIcon = new L.Icon({
+    iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
+    shadowUrl:'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+    iconSize:[25,41],
+    iconAnchor:[12,41],
+    popupAnchor:[1,-34],
+    shadowSize:[41,41]
+});
+
+var redIcon = new L.Icon({
+    iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    shadowUrl:'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+    iconSize:[25,41],
+    iconAnchor:[12,41],
+    popupAnchor:[1,-34],
+    shadowSize:[41,41]
+});
+
+// ======================
+// LOAD DATA FROM FLASK
+// ======================
+var parks = {{ parks | tojson }};
+var facilities = {{ facilities | tojson }};
+var parkMarkers = {};
+var searchCircle = null;
+var routeLayer = null;
+var userMarker = null;
+
+// Populate facility dropdown list
+console.log("Facilities from Flask:", facilities);
+
+const facilitySelect = document.getElementById('facility-select');
+if (facilities && facilities.length > 0) {
+    facilities.forEach(facility => {
+        const option = document.createElement('option');
+        option.value = facility.name;
+        option.textContent = facility.name;
+        facilitySelect.appendChild(option);
+    });
+    console.log("Added", facilities.length, "facilities to dropdown");
+} else {
+    console.error("No facilities loaded!");
+    facilitySelect.innerHTML = '<option>Error: No facilities found</option>';
+}
+
+// ======================
+// ADD MARKERS + POPUPS
+// ======================
+parks.forEach(p => {
+    let marker = L.marker([p.lat,p.lon], { icon:blackIcon })
+        .bindPopup(
+            `<div class='popup-card'>
+                <div class='popup-title'>${p.name}</div>
+
+                <span class='popup-row-label'>Site ID:</span> ${p.site_id}<br>
+                <span class='popup-row-label'>Recreation Index:</span> <b>${p.recreation || 'N/A'}</b><br>
+                <span class='popup-row-label'>Facility Quality Score:</span> ${p.quality || 'N/A'}<br>
+                <span class='popup-row-label'>Safety Score:</span> ${p.safety || 'N/A'}<br>
+                <span class='popup-row-label'>Accessibility Score:</span> ${p.accessibility || 'N/A'}<br>
+                <span class='popup-row-label'>Quantity & Variety Score:</span> ${p.quantity_variety || 'N/A'}<br>
+                <span class='popup-row-label'>SIMD Decile:</span> ${p.decile}<br>
+                <span class='popup-row-label'>Postcode:</span> ${p.postcode}<br>
+                <span class='popup-row-label'>Community:</span> ${p.community}
+            </div>`,
+            {
+                autoClose: false,
+                closeOnClick: false
+            }
+        )
+        .addTo(map);
+
+    parkMarkers[p.name.toLowerCase()] = marker;
+});
+
+// ======================
+// Global function: close all open popups
+// ======================
+function closeAllPopups() {
+    parks.forEach(p => {
+        let m = parkMarkers[p.name.toLowerCase()];
+        if (m && m.isPopupOpen()) {
+            m.closePopup();
+        }
+    });
+}
+
+// ======================================================
+// 1) SEARCH BY NAME
+// ======================================================
+const searchBox = document.getElementById("search-box");
+const suggestionsBox = document.getElementById("suggestions");
+
+searchBox.addEventListener("input", function() {
+    let input = this.value.trim().toLowerCase();
+    suggestionsBox.textContent = "";
+
+    if (!input) { suggestionsBox.style.display="none"; return; }
+
+    let matches = parks.filter(p => p.name.toLowerCase().includes(input)).slice(0,8);
+
+    if (matches.length === 0) {
+        suggestionsBox.style.display = "none";
+        return;
+    }
+
+    matches.forEach(park => {
+        let div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.innerHTML = park.name;
+        div.onclick = () => {
+            searchBox.value = park.name;
+            suggestionsBox.style.display = "none";
+            zoomToMarker(parkMarkers[park.name.toLowerCase()]);
+        };
+        suggestionsBox.appendChild(div);
+    });
+
+    suggestionsBox.style.display = "block";
+});
+
+searchBox.addEventListener("keyup", function(ev) {
+    if (ev.key === "Enter") {
+        let name = this.value.trim().toLowerCase();
+        if (!name) return;
+
+        if (parkMarkers[name]) {
+            zoomToMarker(parkMarkers[name]);
+            return;
+        }
+        alert("Not available for now");
+    }
+});
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".search-container")) {
+        suggestionsBox.style.display = "none";
+    }
+});
+
+function zoomToMarker(marker) {
+    closeAllPopups();
+    
+    parks.forEach(p => {
+        let m = parkMarkers[p.name.toLowerCase()];
+        if (m) {
+            m.setIcon(blackIcon);
+            m.setZIndexOffset(0);
+            m.setPopupContent(
+                `<div class='popup-card'>
+                    <div class='popup-title'>${p.name}</div>
+
+                    <span class='popup-row-label'>Site ID:</span> ${p.site_id}<br>
+                    <span class='popup-row-label'>Recreation Index:</span> <b>${p.recreation || 'N/A'}</b><br>
+                    <span class='popup-row-label'>Facility Quality Score:</span> ${p.quality || 'N/A'}<br>
+                    <span class='popup-row-label'>Safety Score:</span> ${p.safety || 'N/A'}<br>
+                    <span class='popup-row-label'>Accessibility Score:</span> ${p.accessibility || 'N/A'}<br>
+                    <span class='popup-row-label'>Quantity & Variety Score:</span> ${p.quantity_variety || 'N/A'}<br>
+                    <span class='popup-row-label'>SIMD Decile:</span> ${p.decile}<br>
+                    <span class='popup-row-label'>Postcode:</span> ${p.postcode}<br>
+                    <span class='popup-row-label'>Community:</span> ${p.community}
+                </div>`
+            );
+        }
+    });
+    
+    let latlng = marker.getLatLng();
+    map.flyTo(latlng, 16, {duration: 0.8});
+    setTimeout(() => marker.openPopup(), 850);
+}
+
+// ======================================================
+// 2) RANKING SEARCH
+// ======================================================
+document.getElementById("rank-apply").onclick = function() {
+    let type = document.getElementById("rank-type").value;
+    let number = document.getElementById("rank-number").value;
+
+    if (!type && !number) return alert("Please complete both fields");
+    if (!type) return alert("Please select ranking type first");
+    if (!number) return alert("Please enter a number");
+
+    number = Number(number);
+    if (number <= 0 || !Number.isInteger(number)) {
+        return alert("Number not applicable");
+    }
+    if (number > parks.length) {
+        return alert("Number exceeds total number of parks");
+    }
+
+    closeAllPopups();
+
+    let scoreField, isDescending;
+    
+    switch(type) {
+        case 'recreation_highest':
+            scoreField = 'recreation';
+            isDescending = true;
+            break;
+        case 'recreation_lowest':
+            scoreField = 'recreation';
+            isDescending = false;
+            break;
+        case 'quality_highest':
+            scoreField = 'quality';
+            isDescending = true;
+            break;
+        case 'quality_lowest':
+            scoreField = 'quality';
+            isDescending = false;
+            break;
+        case 'quantity_highest':
+            scoreField = 'quantity_variety';
+            isDescending = true;
+            break;
+        case 'quantity_lowest':
+            scoreField = 'quantity_variety';
+            isDescending = false;
+            break;
+        case 'safety_highest':
+            scoreField = 'safety';
+            isDescending = true;
+            break;
+        case 'safety_lowest':
+            scoreField = 'safety';
+            isDescending = false;
+            break;
+        case 'accessibility_highest':
+            scoreField = 'accessibility';
+            isDescending = true;
+            break;
+        case 'accessibility_lowest':
+            scoreField = 'accessibility';
+            isDescending = false;
+            break;
+        default:
+            return alert("Invalid ranking type");
+    }
+
+    let validParks = parks.filter(p => {
+        let value = p[scoreField];
+        return value !== null && value !== undefined && !isNaN(Number(value));
+    });
+
+    if (validParks.length === 0) {
+        return alert("No parks have valid data for this ranking type");
+    }
+
+    let sorted = [...validParks].sort((a, b) => {
+        let scoreA = Number(a[scoreField]);
+        let scoreB = Number(b[scoreField]);
+        return isDescending ? scoreB - scoreA : scoreA - scoreB;
+    });
+
+    let rankings = [];
+    let currentRank = 1;
+    let previousScore = null;
+    let sameRankCount = 0;
+
+    sorted.forEach((park, index) => {
+        let currentScore = Number(park[scoreField]);
+        
+        if (previousScore !== null && currentScore !== previousScore) {
+            currentRank += sameRankCount;
+            sameRankCount = 1;
+        } else {
+            sameRankCount++;
+        }
+        
+        rankings.push({
+            park: park,
+            rank: currentRank,
+            score: currentScore
+        });
+        
+        previousScore = currentScore;
+    });
+
+    let selected = [];
+    let tiedRank = null;
+    let tiedCount = 0;
+    
+    if (rankings.length <= number) {
+        selected = rankings;
+    } else {
+        let targetRank = rankings[number - 1].rank;
+        selected = rankings.filter(r => r.rank <= targetRank);
+        
+        if (selected.length > number) {
+            tiedRank = targetRank;
+            tiedCount = selected.filter(r => r.rank === targetRank).length;
+        }
+    }
+    
+    if (selected.length > number && tiedCount > 1) {
+        alert(`Found ${selected.length} parks (${tiedCount} parks tied at rank #${tiedRank})`);
+    }
+
+    parks.forEach(p => {
+        let m = parkMarkers[p.name.toLowerCase()];
+        if (m) {
+            m.setIcon(blackIcon);
+            m.setZIndexOffset(0);
+            m.setPopupContent(
+                `<div class='popup-card'>
+                    <div class='popup-title'>${p.name}</div>
+
+                    <span class='popup-row-label'>Site ID:</span> ${p.site_id}<br>
+                    <span class='popup-row-label'>Recreation Index:</span> <b>${p.recreation || 'N/A'}</b><br>
+                    <span class='popup-row-label'>Facility Quality Score:</span> ${p.quality || 'N/A'}<br>
+                    <span class='popup-row-label'>Safety Score:</span> ${p.safety || 'N/A'}<br>
+                    <span class='popup-row-label'>Accessibility Score:</span> ${p.accessibility || 'N/A'}<br>
+                    <span class='popup-row-label'>Quantity & Variety Score:</span> ${p.quantity_variety || 'N/A'}<br>
+                    <span class='popup-row-label'>SIMD Decile:</span> ${p.decile}<br>
+                    <span class='popup-row-label'>Postcode:</span> ${p.postcode}<br>
+                    <span class='popup-row-label'>Community:</span> ${p.community}
+                </div>`
+            );
+        }
+    });
+
+    let scoreLabel = '';
+    switch(scoreField) {
+        case 'recreation': scoreLabel = 'Recreation Index'; break;
+        case 'quality': scoreLabel = 'Facility Quality Score'; break;
+        case 'quantity_variety': scoreLabel = 'Quantity & Variety Score'; break;
+        case 'safety': scoreLabel = 'Safety Score'; break;
+        case 'accessibility': scoreLabel = 'Accessibility Score'; break;
+    }
+
+    let sortedByRank = [...selected].sort((a, b) => b.rank - a.rank);
+    
+    let selectedMarkers = [];
+    sortedByRank.forEach(item => {
+        let p = item.park;
+        let m = parkMarkers[p.name.toLowerCase()];
+        if (m) {
+            m.setIcon(redIcon);
+            
+            let zIndexOffset = 10000 - item.rank;
+            m.setZIndexOffset(zIndexOffset);
+            
+            m.setPopupContent(
+                `<div class='popup-card'>
+                    <div class='popup-title'>${p.name}</div>
+                    <div style='background:#c0002f; color:white; padding:6px 10px; border-radius:6px; margin-bottom:8px; text-align:center; font-weight:bold; font-size:14px;'>
+                         Rank #${item.rank}<br>
+                        <span style='font-size:12px;'>${scoreLabel}: ${item.score}</span>
+                    </div>
+
+                    <span class='popup-row-label'>Site ID:</span> ${p.site_id}<br>
+                    <span class='popup-row-label'>Recreation Index:</span> <b>${p.recreation || 'N/A'}</b><br>
+                    <span class='popup-row-label'>Facility Quality Score:</span> ${p.quality || 'N/A'}<br>
+                    <span class='popup-row-label'>Safety Score:</span> ${p.safety || 'N/A'}<br>
+                    <span class='popup-row-label'>Accessibility Score:</span> ${p.accessibility || 'N/A'}<br>
+                    <span class='popup-row-label'>Quantity & Variety Score:</span> ${p.quantity_variety || 'N/A'}<br>
+                    <span class='popup-row-label'>SIMD Decile:</span> ${p.decile}<br>
+                    <span class='popup-row-label'>Postcode:</span> ${p.postcode}<br>
+                    <span class='popup-row-label'>Community:</span> ${p.community}
+                </div>`
+            );
+            
+            selectedMarkers.push(m);
+        }
+    });
+
+    if (selectedMarkers.length === 0) {
+        alert("No valid parks found for this query.");
+        return;
+    }
+
+    let group = new L.featureGroup(selectedMarkers);
+    map.fitBounds(group.getBounds(), {padding:[40,40]});
+
+    selectedMarkers.forEach(m => m.openPopup());
+};
+
+// ======================================================
+// 3) LOCATION & FACILITY SEARCH
+// ======================================================
+
+function isValidEdinburghPostcode(postcode) {
+    // Edinburgh postcode format: EH + 1-2 digits + space + 1 digit + 2 letters
+    // Examples: EH1 1LZ, EH3 9DH, EH16 5AY
+    const pattern = /^EH\d{1,2}\s?\d[A-Z]{2}$/i;
+    return pattern.test(postcode.trim().toUpperCase());
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+let nearestMode = false;
+document.getElementById('nearest-toggle').onclick = function() {
+    nearestMode = !nearestMode;
+    const btn = this;
+    const distanceInput = document.getElementById('distance-input');
+    
+    if (nearestMode) {
+        btn.style.background = '#c0002f';
+        btn.style.color = 'white';
+        btn.textContent = ' Nearest Only';
+        distanceInput.disabled = true;
+        distanceInput.style.background = '#e0e0e0';
+    } else {
+        btn.style.background = '#f0f0f0';
+        btn.style.color = 'black';
+        btn.textContent = 'Nearest Only';
+        distanceInput.disabled = false;
+        distanceInput.style.background = 'white';
+    }
+};
+
+document.getElementById('location-apply').onclick = async function() {
+    const postcode = document.getElementById('postcode-input').value.trim().toUpperCase();
+    const selectedFacilities = Array.from(document.getElementById('facility-select').selectedOptions)
+        .map(opt => opt.value);
+    const distance = parseFloat(document.getElementById('distance-input').value);
+    
+    if (!postcode) return alert("Please enter a postcode");
+    if (!isValidEdinburghPostcode(postcode)) {
+        return alert("Invalid Edinburgh postcode format. Example: EH1 1LZ");
+    }
+    if (selectedFacilities.length === 0) {
+        return alert("Please select at least one facility");
+    }
+    if (!nearestMode && (!distance || distance <= 0)) {
+        return alert("Please enter a valid distance or toggle 'Nearest Only'");
+    }
+    
+    closeAllPopups();
+    
+    if (searchCircle) map.removeLayer(searchCircle);
+    if (routeLayer) map.removeLayer(routeLayer);
+    if (userMarker) map.removeLayer(userMarker);
+    
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${postcode},Edinburgh,UK&limit=1`
+        );
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            return alert("Postcode not found. Please check and try again.");
+        }
+        
+        const userLat = parseFloat(data[0].lat);
+        const userLon = parseFloat(data[0].lon);
+        
+        const blueIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        userMarker = L.marker([userLat, userLon], { icon: blueIcon })
+            .bindPopup(`<b>Your Location</b><br>${postcode}`, {
+                autoClose: false,      // Do not auto-close
+                closeOnClick: false    // Do not close on map click
+            })
+            .addTo(map)
+            .openPopup();  // Open popup immediately
+        
+        const queryResponse = await fetch('/search_parks_by_location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                facilities: selectedFacilities,
+                user_lat: userLat,
+                user_lon: userLon,
+                distance: nearestMode ? null : distance,
+                nearest_only: nearestMode
+            })
+        });
+        
+        const result = await queryResponse.json();
+        
+        if (result.parks.length === 0) {
+            alert("No parks found matching your criteria");
+            return;
+        }
+        
+        parks.forEach(p => {
+            let m = parkMarkers[p.name.toLowerCase()];
+            if (m) {
+                m.setIcon(blackIcon);
+                m.setZIndexOffset(0);
+            }
+        });
+        
+        const greenIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        let matchedMarkers = [userMarker];
+        
+        result.parks.forEach(parkData => {
+            const park = parks.find(p => p.site_id === parkData.site_id);
+            if (!park) return;
+            
+            let m = parkMarkers[park.name.toLowerCase()];
+            if (m) {
+                m.setIcon(greenIcon);
+                m.setZIndexOffset(1000);
+                
+                m.setPopupContent(
+                    `<div class='popup-card'>
+                        <div class='popup-title'>${park.name}</div>
+                        <div style='background:#28a745; color:white; padding:6px 10px; border-radius:6px; margin-bottom:8px; text-align:center; font-weight:bold; font-size:14px;'>
+                             ${parkData.distance.toFixed(2)} km away
+                        </div>
+                        <span class='popup-row-label'>Facilities:</span> ${parkData.matched_facilities.join(', ')}<br><br>
+                        <span class='popup-row-label'>Site ID:</span> ${park.site_id}<br>
+                        <span class='popup-row-label'>Recreation Index:</span> <b>${park.recreation || 'N/A'}</b><br>
+                        <span class='popup-row-label'>SIMD Decile:</span> ${park.decile}<br>
+                        <span class='popup-row-label'>Postcode:</span> ${park.postcode}<br>
+                        <span class='popup-row-label'>Community:</span> ${park.community}<br>
+                        <button onclick="showRoute(${userLat}, ${userLon}, ${park.lat}, ${park.lon}, '${park.name.replace(/'/g, "\\'")}')" 
+                                style="margin-top:8px; width:100%; padding:8px; background:#0057b8; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">
+                            Show Route
+                        </button>
+                    </div>`
+                );
+                
+                matchedMarkers.push(m);
+            }
+        });
+        
+        if (!nearestMode) {
+            searchCircle = L.circle([userLat, userLon], {
+                radius: distance * 1000,
+                color: '#0057b8',
+                fillColor: '#0057b8',
+                fillOpacity: 0.1,
+                weight: 2
+            }).addTo(map);
+            matchedMarkers.push(searchCircle);
+        }
+        
+        const group = new L.featureGroup(matchedMarkers);
+        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        
+        // Ensure user location popup remains open
+        setTimeout(() => {
+            if (userMarker) {
+                userMarker.openPopup();
+            }
+        }, 500);
+        
+        if (nearestMode) {
+            alert(`Found nearest park: ${result.parks[0].name} (${result.parks[0].distance.toFixed(2)} km away)`);
+        } else {
+            alert(`Found ${result.parks.length} park(s) within ${distance} km`);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert("Error processing request. Please try again.");
+    }
+};
+
+// Show route - opens Google Maps directly (force English language)
+window.showRoute = function(userLat, userLon, parkLat, parkLon, parkName) {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${parkLat},${parkLon}&travelmode=walking&hl=en`;
+    window.open(url, '_blank');
+};
+</script>
+</body>
+</html>

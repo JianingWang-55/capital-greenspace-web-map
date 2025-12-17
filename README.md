@@ -10,6 +10,7 @@ into an interactive dashboard, with a **specific focus on recreational facilitie
 - [Project Structure](#-project-structure)
 - [Tech Stack](#-tech-stack)
 - [Data Sources](#-data-sources)
+- [Notes](#-notes)
 - [AI Acknowledgement](#-acknowledgements)
 
 ---
@@ -54,13 +55,13 @@ web_map/
 │   │   ├── generate_points.py
 │   │   ├── process_5min_spatial_join.py
 │   │   └── process_bus_cycle_data.py
-├── areas_joined.geojson
-├── drive_areas.geojson
-├── parks_centroids_joined.geojson
-├── transport_5min_joined.geojson
-├── parks_with_transport.geojson
-├── simd_edinburgh.geojson
-├── simd_edinburgh_cleaned.geojson
+│   ├── areas_joined.geojson
+│   ├── drive_areas.geojson
+│   ├── parks_centroids_joined.geojson
+│   ├── transport_5min_joined.geojson
+│   ├── parks_with_transport.geojson
+│   ├── simd_edinburgh.geojson
+│   ├── simd_edinburgh_cleaned.geojson
 └── README.md
 ```
 
@@ -100,6 +101,13 @@ City of Edinburgh Council Open Spatial Data Portal
 University of Edinburgh GeoSciences Network Resource  
 \\groups.geos.ed.ac.uk\netdata\sma\gs\project\EDB_Datasets\MMap_Roads_EDB\
 ed_mmap_transpt_mar19
+
+---
+
+## Notes
+
+Park photos on the web map were taken by group members and have been uploaded to the project server for use in the web application.
+To keep the GitHub repository lightweight and focused on code and documentation, these image files are not included in this repository.
 
 ---
 

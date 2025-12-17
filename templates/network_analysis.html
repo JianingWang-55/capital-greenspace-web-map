@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+  network_analysis.html
+  
+  Network Analysis Page 
+
+  Purpose:
+  - Provides an interactive Leaflet map interface for exploring network-based
+    accessibility and connectivity metrics for Edinburgh greenspaces.
+  - Supports multiple network analysis layers (walking isochrones, driving distances,
+    and bus/bike connectivity) derived from park centroids.
+
+  Key Features:
+  - Mode switching:
+      * Walking Isochrone: visualises walking catchment areas (e.g., 5/10/15 minutes).
+      * Drive Distance: visualises driving-distance-based catchments from park centroids.
+      * Bus & Bike Connect: highlights public transport links (bus stops and bike parking)
+        within a fixed walking threshold (e.g., 5 minutes) from parks.
+  - Park filter panel (shown when a mode is active):
+      * Dropdown to zoom/focus on a selected park.
+      * Export current view/data as GeoJSON for further analysis.
+      * Reset view button to restore the default map extent.
+
+  Data & Integration:
+  - Uses Flask/Jinja2 to populate the park dropdown:
+      * `parks`: iterable of park objects with fields {id, name}.
+  - Loads analysis layers from static GeoJSON files via DATA_URLS:
+      * points: park centroids
+      * walk: walking isochrone polygons
+      * drive: driving-distance polygons
+      * bus: bus/bike connectivity features
+  - Map behaviour and layer logic are implemented in:
+      * `static/js/network_analysis.js`
+  - Styling is handled by:
+      * `static/css/network_analysis.css`
+
+  Notes:
+  - Designed for academic demonstration and user exploration of accessibility
+    and transport connectivity around selected greenspaces.
+  - Uses external dependencies:
+      * Leaflet for mapping
+      * Font Awesome for icons
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edinburgh Network Analysis</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/network_analysis.css') }}">
+</head>
+<body>
+
+    <div class="layout-wrapper">
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-circle-nodes"></i> Network Analysis</h2>
+                <a href="{{ url_for('user_guide') }}#network" target="_blank" class="btn-help-header" title="Help / User Guide">
+                    <i class="fa-solid fa-circle-question"></i>
+                </a>
+            </div>
+            
+            <div class="sidebar-content">
+                
+                <div class="control-section">
+                    <label class="section-label">Select Mode</label>
+                    <button id="walkBtn" class="nav-btn" onclick="switchLayer('walk')">
+                        <i class="fa-solid fa-person-walking"></i> Walking Isochrone
+                    </button>
+                    
+                    <button id="driveBtn" class="nav-btn" onclick="switchLayer('drive')">
+                        <i class="fa-solid fa-car"></i> Drive Distance
+                    </button>
+                    
+                    <button id="busBtn" class="nav-btn" onclick="switchLayer('bus')">
+                        <i class="fa-solid fa-bus"></i> Bus & Bike Connect
+                    </button>
+                </div>
+
+                <div id="filterPanel" class="control-section" style="display:none;">
+                    <hr class="separator">
+                    <label class="section-label">Filter Park</label>
+                    <select id="parkDropdown" class="filter-select" onchange="focusOnPark()">
+                        <option value="all">-- Show All Parks --</option>
+                        {% for park in parks %}
+                            <option value="{{ park.id }}">{{ park.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <div class="helper-text">
+                        <i class="fa-solid fa-circle-info"></i> Select a park to zoom in.
+                    </div>
+
+                    <button class="nav-btn" onclick="exportCurrentView()" style="margin-top: 10px; background-color: #2c3e50; color: white;">
+                        <i class="fa-solid fa-download"></i> Export Data (GeoJSON)
+                    </button>
+
+                    <button id="resetBtn" class="btn-reset" onclick="resetMap()">
+                        <i class="fa-solid fa-rotate-left"></i> Reset View
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('index') }}" class="btn btn-grey-small">
+                    <i class="fa-solid fa-house"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div id="map"></div>
+    
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const DATA_URLS = {
+            points: "{{ url_for('static', filename='parks_centroids_joined.geojson') }}",
+            walk: "{{ url_for('static', filename='areas_joined.geojson') }}",
+            drive: "{{ url_for('static', filename='drive_areas.geojson') }}",
+            bus: "{{ url_for('static', filename='transport_5min_joined.geojson') }}"
+        };
+    </script>
+
+    <script src="{{ url_for('static', filename='js/network_analysis.js') }}"></script>
+
+</body>
+</html>

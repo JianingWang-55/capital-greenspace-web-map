@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# OS
+.DS_Store
+
+# Flask
+instance/
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+*.txt
+*.key
+*.pem
+.ora_student.txt
+
+# Server / runtime
+screenlog.*

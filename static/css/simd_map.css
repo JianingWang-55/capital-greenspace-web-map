@@ -1,0 +1,242 @@
+/*
+ * simd_map.css
+ * ------------------------------------------------------------------
+ * Stylesheet for the Greenspace & Deprivation Explorer Page.
+ * This file defines the visual layout for the data visualization interface, including:
+ * - Layout: Split-screen sidebar and map container (matches other maps).
+ * - Layer Controls: Radio buttons and checkboxes to toggle SIMD/Greenspace layers.
+ * - Legends: Custom styling for color-coded data visualization keys.
+ * - Popups: Custom Leaflet popups with integrated image galleries.
+ * ------------------------------------------------------------------
+ */
+
+:root {
+    /* --- THEME COLORS --- */
+    --primary-color: #2c3e50; 
+    --primary-hover: #1a252f;
+    --accent-color: #0288D1;
+    --bg-light: #f8f9fa;
+    --text-dark: #333;
+    --text-light: #ecf0f1;
+    --grey-btn: #95a5a6;
+    --grey-btn-hover: #7f8c8d;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 8px;
+}
+
+body { margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: var(--text-dark); overflow: hidden; }
+
+/* --- SPLIT LAYOUT --- */
+.layout-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-right: 1px solid #1a252f;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+/* --- UPDATED HEADER --- */
+.sidebar-header {
+    padding: 15px 20px;
+    background: var(--primary-hover);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+}
+
+.sidebar-header h2 { 
+    margin: 0; 
+    font-size: 1.2rem; /* Kept original font size */
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    
+    /* CHANGED: Nudge title slightly right */
+    padding-left: 10px; 
+}
+
+/* --- HELP BUTTON --- */
+.btn-help-header {
+    color: white;
+    font-size: 1.3rem;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+    display: flex;
+    align-items: center;
+    
+    position: absolute; 
+    right: 20px; 
+}
+.btn-help-header:hover {
+    color: var(--accent-color);
+}
+
+
+.sidebar-content { 
+    overflow-y: hidden; 
+    padding: 8px; 
+    background: var(--primary-color); 
+    flex: 1; 
+}
+
+.sidebar-footer {
+    padding: 12px 20px;
+    background: var(--primary-hover);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* --- MAP CONTAINER --- */
+#map-container { 
+    flex: 1; 
+    position: relative; 
+    height: 100%; 
+}
+#map { height: 100%; width: 100%; z-index: 1; }
+
+/* --- ACCORDION / PANELS --- */
+.accordion-item { 
+    background: white; 
+    border-radius: var(--radius); 
+    margin-bottom: 8px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    overflow: hidden; 
+    color: var(--text-dark);
+}
+
+.accordion-header {
+    padding: 10px 15px; 
+    font-weight: 700; 
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    color: var(--primary-color);
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    font-size: 14px;
+}
+
+.accordion-body { 
+    padding: 10px 15px; 
+    background: white; 
+}
+.accordion-body.open { display: block; }
+
+/* --- CUSTOM LAYER CONTROLS --- */
+.control-group { margin-bottom: 10px; }
+.control-group:last-child { margin-bottom: 0; }
+
+.control-label {
+    display: block; font-size: 11px; font-weight: bold; 
+    color: #666; margin-bottom: 4px; text-transform: uppercase;
+}
+
+.radio-option, .check-option {
+    display: flex; align-items: center; margin-bottom: 4px; 
+    font-size: 13px; cursor: pointer;
+}
+.radio-option input, .check-option input {
+    margin-right: 8px; cursor: pointer; width: auto;
+}
+.radio-option label, .check-option label { cursor: pointer; }
+
+/* --- LEGEND STYLING --- */
+.legend-container { font-size: 12px; line-height: 1.4; }
+.legend-row { display: flex; align-items: center; margin-bottom: 2px; }
+.legend-color {
+    width: 14px; height: 14px; 
+    border-radius: 3px; margin-right: 8px; 
+    border: 1px solid #ccc;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    width: 100%; padding: 8px; border: none; border-radius: 6px; cursor: pointer;
+    font-weight: bold; font-size: 13px; transition: 0.2s; display: flex;
+    justify-content: center; align-items: center; gap: 8px; text-decoration: none;
+}
+.btn-grey-small {
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    width: 80%; margin: 0 auto; padding: 8px; font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-grey-small:hover { background: rgba(255,255,255,0.2); }
+
+/* --- LOADING SPINNER --- */
+#loading-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.8); z-index: 9999;
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+}
+.spinner {
+    width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--primary-color);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- POPUPS & GALLERY --- */
+.leaflet-popup-content-wrapper { 
+    border-radius: 10px; padding: 0; overflow: hidden; 
+    box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+}
+.leaflet-popup-content { margin: 0; min-width: 280px; max-width: 350px; }
+
+/* === NEW: CLOSE BUTTON STYLING (Matched to Interaction Map) === */
+.leaflet-container a.leaflet-popup-close-button {
+    color: #000 !important; font-weight: bold !important; font-size: 18px !important;
+    background: rgba(255, 255, 255, 0.9) !important; border-radius: 50%;
+    width: 30px !important; height: 30px !important;
+    display: flex !important; justify-content: center; align-items: center;
+    top: 10px !important; right: 10px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); text-decoration: none !important; z-index: 1000;
+}
+.leaflet-container a.leaflet-popup-close-button:hover { background: #fff !important; color: #c00 !important; cursor: pointer; }
+
+/* Popup Content Styles */
+.popup-card { font-family: 'Segoe UI', sans-serif; font-size: 14px; }
+.image-gallery { position: relative; height: 180px; background: #eee; }
+.gallery-image { width: 100%; height: 100%; object-fit: cover; display: none; }
+.gallery-image.active { display: block; }
+.gallery-controls {
+    position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;
+}
+.gallery-btn {
+    background: transparent; border: none; color: white; cursor: pointer; font-weight: bold;
+}
+.gallery-counter { color: white; font-size: 12px; margin: 0 5px; }
+.no-image-placeholder { 
+    height: 180px; display: flex; align-items: center; 
+    justify-content: center; background: #eee; color: #999; 
+}
+.popup-card-title { padding: 12px; font-weight: bold; font-size: 16px; border-bottom: 1px solid #eee; }
+.popup-card-content { padding: 12px; }
+.popup-info-row { margin-bottom: 5px; }
+.popup-row-label { font-weight: bold; color: #555; }
+.gallery-button {
+    display: block; width: 100%; margin-top: 10px; padding: 8px;
+    background: var(--accent-color); color: white; text-align: center;
+    border-radius: 4px; text-decoration: none; font-weight: bold;
+}

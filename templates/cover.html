@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  cover.html
+  
+  Cover Page Template 
+
+  Purpose:
+  - Provides the landing/cover page for the web map project with a stitched-image
+    carousel and a "Home Page" link back to the main index route.
+
+  Key Features:
+  - Full-screen, centered layout with project title + subtitle.
+  - Carousel-style stitched gallery with left/right navigation buttons.
+    - Press-and-hold (mouse) or touch-and-hold (mobile) scrolls continuously.
+  - Hover interaction:
+    - Hovered image expands (flex-grow) and switches to object-fit: contain.
+    - Non-hovered images dim and turn grayscale for focus.
+
+  Data Requirements (passed from Flask):
+  - `images`: A list/array of image filenames (e.g., ["a.jpg", "b.png"]).
+    - Injected via Jinja2: `const allImages = {{ images | tojson }};`
+
+  Static Asset Path:
+  - Images are loaded from: `static/cover/`
+    - Base URL provided by: `{{ url_for('static', filename='cover/') }}`
+
+  Notes:
+  - Designed to be non-selectable (user-select: none) and to avoid scrollbars.
+  - If `images` is empty, a "No images found." message is shown.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital Green Space Project</title>
+    <style>
+        /* --- General Layout & Fonts --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a252f; 
+            color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centers content vertically */
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            
+            /* CHANGED: Increased from 40px to 80px to push content down */
+            padding-top: 80px; 
+            box-sizing: border-box;
+        }
+
+        /* --- Title Styling --- */
+        h1 {
+            font-size: 3.2rem; /* INCREASED from 2.4rem */
+            font-weight: 700; 
+            
+            /* ADJUSTED: Changed from -120px to -80px (less negative = lower position) */
+            margin-top: -80px; 
+            
+            /* Keep spacing below title */
+            margin-bottom: 40px; 
+            
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.4; 
+        }
+
+        /* Subtitle styling (Second Line) */
+        h1 span {
+            display: block;    
+            font-size: 100%;   /* Same size as line 1 */
+            font-weight: 700;  /* Same bold weight as line 1 */
+            opacity: 1;       
+        }
+
+        /* --- Carousel Wrapper --- */
+        .carousel-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 98%;      
+            height: 60vh; 
+            gap: 10px;
+        }
+
+        /* --- Navigation Arrows --- */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 15px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            height: 100%; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+
+        .nav-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- The Stitch Container --- */
+        .gallery-container {
+            display: flex;
+            flex: 1;         
+            height: 100%;
+            gap: 4px;        
+            overflow: hidden;
+        }
+
+        /* --- The Image Item --- */
+        .gallery-item {
+            flex: 1;         
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: flex 0.5s ease-out, filter 0.3s;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block;
+            transition: object-fit 0.5s ease;
+        }
+
+        /* --- Interaction Effects --- */
+        .gallery-item:hover {
+            flex: 25; 
+        }
+        
+        .gallery-item:hover img {
+            object-fit: contain; 
+            background-color: #000;
+        }
+
+        .gallery-container:hover .gallery-item:not(:hover) {
+            filter: grayscale(100%) brightness(0.3);
+            flex: 1;
+        }
+
+        /* --- Home Button Styling --- */
+        .home-link {
+            margin-top: 35px; 
+            color: #ddd;
+            text-decoration: none;
+            border: 3px solid #666; 
+            
+            /* INCREASED from 15px 40px to 18px 50px */
+            padding: 18px 50px; 
+            
+            /* INCREASED from 1.5rem to 1.8rem */
+            font-size: 1.8rem; 
+            font-weight: 700;
+            
+            border-radius: 50px; 
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .home-link:hover {
+            background-color: white;
+            color: #1a252f; 
+            border-color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>
+        Capital Green Space Project
+        <span>Recreation Metric For Greenspaces in Edinburgh</span>
+    </h1>
+
+    <div class="carousel-wrapper">
+        <button class="nav-btn" 
+                onmousedown="startScroll('left')" 
+                onmouseup="stopScroll()" 
+                onmouseleave="stopScroll()"
+                ontouchstart="startScroll('left')"
+                ontouchend="stopScroll()">
+            &#10094;
+        </button>
+
+        <div class="gallery-container" id="gallery"></div>
+
+        <button class="nav-btn" 
+                onmousedown="startScroll('right')" 
+                onmouseup="stopScroll()" 
+                onmouseleave="stopScroll()"
+                ontouchstart="startScroll('right')"
+                ontouchend="stopScroll()">
+            &#10095;
+        </button>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="home-link">Home Page</a>
+
+    <script>
+        // Safely pass image list from Python to JS
+        const allImages = {{ images | tojson }};
+        // Ensure static URL ends with a slash so we can append filenames
+        const staticBaseUrl = "{{ url_for('static', filename='cover/') }}";
+        const gallery = document.getElementById('gallery');
+        
+        let currentIndex = 0; 
+        let scrollInterval = null; 
+
+        function renderGallery() {
+            gallery.innerHTML = ''; 
+            const totalCount = allImages.length;
+
+            if (totalCount === 0) {
+                gallery.innerHTML = '<p style="margin:auto">No images found.</p>';
+                return;
+            }
+
+            for (let i = 0; i < totalCount; i++) {
+                let imgIndex = (currentIndex + i) % totalCount;
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = staticBaseUrl + allImages[imgIndex];
+                img.alt = allImages[imgIndex];
+                img.loading = "lazy"; 
+
+                itemDiv.appendChild(img);
+                gallery.appendChild(itemDiv);
+            }
+        }
+
+        function rotateRight() {
+            currentIndex++;
+            if (currentIndex >= allImages.length) currentIndex = 0;
+            renderGallery();
+        }
+
+        function rotateLeft() {
+            currentIndex--;
+            if (currentIndex < 0) currentIndex = allImages.length - 1;
+            renderGallery();
+        }
+
+        function startScroll(direction) {
+            if (direction === 'left') rotateLeft();
+            else rotateRight();
+
+            scrollInterval = setInterval(() => {
+                if (direction === 'left') rotateLeft();
+                else rotateRight();
+            }, 150); 
+        }
+
+        function stopScroll() {
+            clearInterval(scrollInterval);
+        }
+
+        renderGallery();
+    </script>
+</body>
+</html>

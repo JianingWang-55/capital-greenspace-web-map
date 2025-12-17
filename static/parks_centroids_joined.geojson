@@ -1,0 +1,365 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.215035,
+          55.917315
+        ]
+      },
+      "properties": {
+        "site_id": 14,
+        "Park_ID": 14,
+        "site_name": "Braidburn Valley Park",
+        "postcode": "EH10 5TE",
+        "community": "Morningside",
+        "simd_decile": 10,
+        "recreation_score": 0.702,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.226589,
+          55.911293
+        ]
+      },
+      "properties": {
+        "site_id": 3,
+        "Park_ID": 3,
+        "site_name": "Colinton Mains Park",
+        "postcode": "EH13 9ED",
+        "community": "Firrhill",
+        "simd_decile": 3,
+        "recreation_score": 0.755,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.122478,
+          55.9515
+        ]
+      },
+      "properties": {
+        "site_id": 8,
+        "Park_ID": 8,
+        "site_name": "Figgate Park",
+        "postcode": "EH8 7SE",
+        "community": "Northfield and Willowbrae",
+        "simd_decile": 7,
+        "recreation_score": 0.829,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.221282,
+          55.941066
+        ]
+      },
+      "properties": {
+        "site_id": 7,
+        "Park_ID": 7,
+        "site_name": "Dalry Community Park",
+        "postcode": "EH11 2EQ",
+        "community": "Gorgie and Dalry",
+        "simd_decile": 4,
+        "recreation_score": 0.841,
+        "gallery_url": "https://drive.google.com/drive/folders/1c1i1ZceRGhj-HWGvBRBdcwWB2dvEjzwZ"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.268041,
+          55.921775
+        ]
+      },
+      "properties": {
+        "site_id": 4,
+        "Park_ID": 4,
+        "site_name": "Hailes Quarry Park",
+        "postcode": "EH14 2QR",
+        "community": "Longstone",
+        "simd_decile": 1,
+        "recreation_score": 0.557,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.223683,
+          55.936485
+        ]
+      },
+      "properties": {
+        "site_id": 13,
+        "Park_ID": 13,
+        "site_name": "Harrison Park East",
+        "postcode": "EH11 1EW",
+        "community": "Merchiston",
+        "simd_decile": 10,
+        "recreation_score": 0.719,
+        "gallery_url": "https://drive.google.com/drive/folders/17HelH5fldu6JHGuTPNdVm4lW1dCy6OBr"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.11547,
+          55.92952
+        ]
+      },
+      "properties": {
+        "site_id": 2,
+        "Park_ID": 2,
+        "site_name": "Hunter's Hall Public Park",
+        "postcode": "EH16 4ND",
+        "community": "Craigmillar",
+        "simd_decile": 2,
+        "recreation_score": 0.69,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.16042,
+          55.926125
+        ]
+      },
+      "properties": {
+        "site_id": 6,
+        "Park_ID": 6,
+        "site_name": "Inch Park",
+        "postcode": "EH16 4TD",
+        "community": "Liberton and District",
+        "simd_decile": 2,
+        "recreation_score": 0.873,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.217358,
+          55.963483
+        ]
+      },
+      "properties": {
+        "site_id": 17,
+        "Park_ID": 17,
+        "site_name": "Inverleith Park",
+        "postcode": "EH3 5PA",
+        "community": "Stockbridge and Inverleith",
+        "simd_decile": 10,
+        "recreation_score": 0.797,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.163991,
+          55.971177
+        ]
+      },
+      "properties": {
+        "site_id": 9,
+        "Park_ID": 9,
+        "site_name": "Leith Links",
+        "postcode": "EH6 8HR",
+        "community": "Leith Links",
+        "simd_decile": 5,
+        "recreation_score": 0.696,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.160061,
+          55.960609
+        ]
+      },
+      "properties": {
+        "site_id": 10,
+        "Park_ID": 10,
+        "site_name": "Lochend Park",
+        "postcode": "EH7 6BP",
+        "community": "Craigentinny and Meadowbank",
+        "simd_decile": 6,
+        "recreation_score": 0.642,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.238827,
+          55.944784
+        ]
+      },
+      "properties": {
+        "site_id": 18,
+        "Park_ID": 18,
+        "site_name": "Roseburn Public Park",
+        "postcode": "EH12 5NZ",
+        "community": "Murrayfield",
+        "simd_decile": 10,
+        "recreation_score": 0.839,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.248594665,
+          55.93642616
+        ]
+      },
+      "properties": {
+        "site_id": 1,
+        "Park_ID": 1,
+        "site_name": "Saughton Park",
+        "postcode": "EH11 3BQ",
+        "community": "Stenhouse, Saughton Mains and Whitson",
+        "simd_decile": 3,
+        "recreation_score": 0.855,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.284767,
+          55.939893
+        ]
+      },
+      "properties": {
+        "site_id": 12,
+        "Park_ID": 12,
+        "site_name": "St Margaret's Park",
+        "postcode": "EH12 7SZ",
+        "community": "Corstorphine and Clermiston",
+        "simd_decile": 5,
+        "recreation_score": 0.714,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.194553,
+          55.968937
+        ]
+      },
+      "properties": {
+        "site_id": 11,
+        "Park_ID": 11,
+        "site_name": "St Marks Park",
+        "postcode": "EH7 4HN",
+        "community": "Stockbridge and Inverleith",
+        "simd_decile": 4,
+        "recreation_score": 0.812,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.191872,
+          55.94143
+        ]
+      },
+      "properties": {
+        "site_id": 16,
+        "Park_ID": 16,
+        "site_name": "The Meadows",
+        "postcode": "EH9 1ND",
+        "community": "Tollcross",
+        "simd_decile": 8,
+        "recreation_score": 0.869,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.193363,
+          55.975109
+        ]
+      },
+      "properties": {
+        "site_id": 15,
+        "Park_ID": 15,
+        "site_name": "Victoria Park",
+        "postcode": "EH6 4QA",
+        "community": "Trinity",
+        "simd_decile": 10,
+        "recreation_score": 0.822,
+        "gallery_url": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.245833,
+          55.972054
+        ]
+      },
+      "properties": {
+        "site_id": 5,
+        "Park_ID": 5,
+        "site_name": "West Pilton Park",
+        "postcode": "EH4 4BY",
+        "community": "West Pilton and West Granton",
+        "simd_decile": 2,
+        "recreation_score": 0.67,
+        "gallery_url": null
+      }
+    }
+  ]
+}

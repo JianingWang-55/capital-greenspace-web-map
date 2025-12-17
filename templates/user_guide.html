@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<!--
+  user_guide.html
+  
+  User Guide Page 
+
+  Purpose:
+  - Serves as the user-facing documentation for the Edinburgh Greenspace
+    Recreation web application.
+  - Explains the purpose, functionality, and usage of each major tool within the system
+    in a clear, structured, and interactive manner.
+
+  Structure:
+  - Sidebar navigation with anchor links to five main sections:
+      1. Introduction
+      2. Greenspace & Deprivation Explorer (SIMD Map)
+      3. Interactive Search Map
+      4. Network Analysis
+      5. Technical Setup
+  - Central content area with vertically centered sections designed for guided reading.
+
+  Key Features:
+  - Scroll-based and click-based navigation:
+      * Clicking sidebar links smoothly scrolls and centers the corresponding section.
+      * Clicking on a content section also brings it into focus.
+      * Active section is visually highlighted and synced with the sidebar.
+  - IntersectionObserver logic ensures automatic section highlighting during scrolling.
+  - Hash-based deep linking:
+      * Supports direct navigation from other pages (e.g. #interactive-search).
+  - Responsive layout suitable for both desktop and demonstration use.
+
+  Content Coverage:
+  - Functional explanations of:
+      * SIMD Deprivation Explorer
+      * Interactive park search and ranking tools
+      * Network-based accessibility analysis
+  - Step-by-step guidance on how users interact with each map.
+  - Overview of the technical stack (Flask, Oracle SQL, Leaflet, HTML/CSS/JS).
+  - Academic context and data provenance (SIMD 2020, OpenStreetMap, Edinburgh Open Data).
+
+  Notes:
+  - This page is intended for both assessment submission and end-user guidance.
+  - Styling is primarily handled via `static/css/user_guide.css`, with minor inline
+    adjustments for scroll-centering behavior.
+  - No backend logic is embedded here; all dynamic behavior is client-side JavaScript.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - Edinburgh Greenspace</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user_guide.css') }}">
+
+    <style>
+        .content-wrapper {
+            padding-top: 40vh;    
+            padding-bottom: 40vh; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .guide-section {
+            cursor: pointer; 
+            transition: all 0.3s ease-out; /* Smooth enlarge animation */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-wrapper">
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-book-open"></i> User Guide</h2>
+            </div>
+            
+            <div class="sidebar-nav">
+                <a href="#intro" class="nav-link active" id="nav-intro">1. Introduction</a>
+                <a href="#simd" class="nav-link" id="nav-simd">2. Deprivation Explorer</a>
+                <a href="#search" class="nav-link" id="nav-search">3. Interactive Search</a>
+                <a href="#network" class="nav-link" id="nav-network">4. Network Analysis</a>
+                <a href="#tech" class="nav-link" id="nav-tech">5. Technical Setup</a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('index') }}" class="btn-grey-small">
+                    <i class="fa-solid fa-house"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div class="content-area">
+            
+            <div class="content-wrapper">
+                
+                <div id="intro" class="guide-section active-focus">
+                    <h1>Welcome to Edinburgh Greenspace Recreation</h1>
+                    <p>This application is designed to help users explore, analyze, and visualize greenspace data across Edinburgh. It combines spatial data (SIMD), park facility information, and network analysis into three distinct tools.</p>
+                </div>
+
+                <div id="simd" class="guide-section">
+                    <h2><i class="fa-solid fa-layer-group"></i> Greenspace & Deprivation Explorer</h2>
+                    <p>This tool visualizes the relationship between greenspace quality and socio-economic deprivation.</p>
+                    
+                    <div class="feature-box">
+                        <h3>Key Features</h3>
+                        <ul>
+                            <li><b>SIMD Layer:</b> Toggles the Scottish Index of Multiple Deprivation (2020) overlay. Red areas indicate higher deprivation; blue areas indicate lower deprivation.</li>
+                            <li><b>Park Popups:</b> Click on any black marker to view the Site ID, Community Council, and calculated Recreation Score.</li>
+                            <li><b>Image Gallery:</b> View real-world photos of park facilities directly inside the popup.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="search" class="guide-section">
+                    <h2><i class="fa-solid fa-magnifying-glass-location"></i> Interactive Search Map</h2>
+                    <p>A comprehensive tool to find the perfect park based on name, ranking, or proximity.</p>
+
+                    <div class="feature-box">
+                        <h3>How to use</h3>
+                        <ul>
+                            <li>
+                                <b>Find by Name:</b> 
+                                Begin typing the name of a park (e.g. Leith links) and select it from the dropdown list to zoom directly to its location on the map.
+                            </li>
+                            <li>
+                                <b>Filter by Score:</b> 
+                                Select a score criterion (e.g., Highest Recreation Score / Lowest Facility Quality) and choose how many top-ranked parks to display (e.g., Top 3, Top 5, or Top 10). This highlights and ranks the matching parks on the map.
+                            </li>
+                            <li>
+                                <b>Find Nearby:</b> 
+                                Locate parks relative to you by:
+                                <ul>
+                                    <li>Entering a <b>Postcode</b> (e.g., EH1 1LZ).</li>
+                                    <li>Ticking <b>one or more Facilities</b> you want (e.g., Basketball Court).</li>
+                                </ul>
+                                You can adjust the search radius (e.g., 0.5km, 1km) by entering a value in <b>"Within Distance"</b> or check <b>"Nearest Only"</b> to locate the single closest park.
+                                <br>
+                                If you select one or more facilities, the resulting parks will be those contain <b>all</b> of the selected facilities.
+                                
+                            </li>
+                        </ul>
+                        <br>
+                                The <b>'Export Data'</b> button downloads a CSV file containing the details of the parks currently found by your search or filter. If no search is active, it will export the data for all parks.
+                    </div>
+                </div>
+
+                <div id="network" class="guide-section">
+                    <h2><i class="fa-solid fa-circle-nodes"></i> Network Analysis</h2>
+                    <p>Advanced spatial analysis showing accessibility and connectivity.</p>
+
+                    <div class="feature-box">
+                        <h3>Analysis Modes</h3>
+                        <ul>
+                            <li><b><i class="fa-solid fa-person-walking"></i> Walking Isochrone:</b> Displays polygon areas representing 5, 10, and 15-minute walking distances from park centroids.</li>
+                            <li><b><i class="fa-solid fa-car"></i> Drive Distance:</b> Shows driving service areas (1km and 2km) from major parks.</li>
+                            <li><b><i class="fa-solid fa-bus"></i> Bus & Bike Connect:</b> Highlights nearby bus stops and bike parking spots within a 5-minute walk of selected parks, helping assess access to public transport and active-travel options.</li>
+                        </ul>
+                        <br>
+                        The <b>'Export Data'</b> button allows you to download the current analysis results (points and service areas) as a GeoJSON file. QGIS is recommended for viewing this data.
+                    </div>
+                </div>
+
+                <div id="tech" class="guide-section">
+                    <h2><i class="fa-solid fa-code"></i> Technical Setup</h2>
+                    <p>This application is built using a modern web GIS stack.</p>
+                    
+                    <table class="tech-table">
+                        <tr>
+                            <th>Component</th>
+                            <th>Technology</th>
+                        </tr>
+                        <tr>
+                            <td>Backend Framework</td>
+                            <td>Python Flask</td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>Oracle Database (SQL)</td>
+                        </tr>
+                        <tr>
+                            <td>Mapping Library</td>
+                            <td>Leaflet.js</td>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>HTML5, CSS3, JavaScript</td>
+                        </tr>
+                        <tr>
+                            <td>Data Sources</td>
+                            <td>Edinburgh Open Data, SIMD 2020, OpenStreetMap</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="footer-note">
+                    <p>© 2025 Capital Green Space Project – Group 4<br>
+                    The University of Edinburgh | School of GeoSciences</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.guide-section');
+            const scrollContainer = document.querySelector(".content-area");
+            let isManualScrolling = false; // Flag to prevent fighting between scroll & click
+
+            // --- 1. CENTER FUNCTION ---
+            function centerSection(targetSection) {
+                if (!targetSection) return;
+                
+                // Temporarily disable the observer logic while we animate scroll
+                isManualScrolling = true;
+
+                // A. Update UI immediately
+                updateActiveState(targetSection);
+
+                // B. Calculate Center
+                const containerRect = scrollContainer.getBoundingClientRect();
+                const sectionRect = targetSection.getBoundingClientRect();
+                const currentScrollTop = scrollContainer.scrollTop;
+                const relativeTop = sectionRect.top - containerRect.top;
+                
+                const targetScrollTop = currentScrollTop + relativeTop - (containerRect.height / 2) + (sectionRect.height / 2);
+
+                // C. Smooth Scroll
+                scrollContainer.scrollTo({
+                    top: targetScrollTop,
+                    behavior: 'smooth'
+                });
+
+                // D. Re-enable observer after animation finishes (approx 800ms)
+                setTimeout(() => { isManualScrolling = false; }, 800);
+            }
+
+            // --- 2. UPDATE STATE HELPER ---
+            function updateActiveState(activeSection) {
+                // Highlight Section (Enlarge)
+                sections.forEach(s => s.classList.remove('active-focus'));
+                activeSection.classList.add('active-focus');
+
+                // Highlight Sidebar
+                const id = activeSection.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    // Check matches for both generic ID and hash ID
+                    if (link.getAttribute('href') === "#" + id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // --- 3. SCROLL OBSERVER (The "Magic" Logic) ---
+            const observerOptions = {
+                root: scrollContainer,
+                // This margin creates a narrow "detection zone" in the absolute center of the screen
+                // It ignores the top 45% and bottom 45%, only looking at the middle 10%.
+                rootMargin: "-45% 0px -45% 0px", 
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                if (isManualScrolling) return; // Don't interfere if user clicked a button
+
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        updateActiveState(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+
+            // --- 4. CLICK EVENTS ---
+            
+            // Sidebar Clicks
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    centerSection(targetSection);
+                });
+            });
+
+            // Card Clicks
+            sections.forEach(section => {
+                section.addEventListener('click', function() {
+                    centerSection(this);
+                });
+            });
+
+            // --- 5. INITIAL LOAD (UPDATED) ---
+            setTimeout(() => {
+                let targetId = 'intro'; // Default
+                const hash = window.location.hash.substring(1); // Remove '#'
+
+                if (hash) {
+                    // MAP incoming '#interactive-search' link to the actual ID 'search'
+                    if (hash === 'interactive-search') {
+                        targetId = 'search'; 
+                    } else {
+                        targetId = hash;
+                    }
+                }
+
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    centerSection(targetSection);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

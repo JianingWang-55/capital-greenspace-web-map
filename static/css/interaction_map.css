@@ -1,0 +1,440 @@
+/*
+ * interaction_map.css
+ * ------------------------------------------------------------------
+ * Stylesheet for the Interactive Search Map interface.
+ * * This file defines the visual layout for the split-screen interface
+ * (Sidebar + Map), including:
+ * - Theming (CSS variables for colors and spacing)
+ * - Sidebar navigation and accordion controls
+ * - Custom Leaflet map popups and control styling
+ * - UI components (Buttons, Inputs, Modals, Toasts)
+ * ------------------------------------------------------------------
+ */
+
+:root {
+    /* --- THEME COLORS --- */
+    --primary-color: #2c3e50; 
+    --primary-hover: #1a252f;
+    --accent-color: #0288D1;
+    --bg-light: #f8f9fa;
+    --text-dark: #333;
+    --text-light: #ecf0f1; 
+    --grey-btn: #95a5a6;
+    --grey-btn-hover: #7f8c8d;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 8px;
+}
+
+body { margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: var(--text-dark); overflow: hidden; }
+
+/* --- SPLIT LAYOUT --- */
+.layout-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- SIDEBAR (Left Column) --- */
+.sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: var(--primary-color); 
+    color: var(--text-light); 
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-right: 1px solid #1a252f; 
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+/* --- HEADER (Updated for Centered Title) --- */
+.sidebar-header {
+    padding: 15px 20px;
+    background: var(--primary-hover); 
+    color: white;
+    display: flex;
+    justify-content: center; /* CHANGED: Centers the H2 title */
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative; /* CHANGED: Required for absolute positioning of the button */
+}
+.sidebar-header h2 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+
+/* --- UPDATED HEADER HELP BUTTON (Positioned Right) --- */
+.btn-help-header {
+    color: white;
+    font-size: 1.3rem;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+    display: flex;
+    align-items: center;
+    
+    /* CHANGED: Absolute positioning to pin right without affecting title center */
+    position: absolute; 
+    right: 20px; 
+}
+.btn-help-header:hover {
+    color: var(--accent-color);
+}
+
+
+.sidebar-content { 
+    overflow-y: auto; 
+    padding: 10px; 
+    background: var(--primary-color); 
+    flex: 1; 
+    position: relative; 
+}
+
+/* Sidebar Footer Area */
+.sidebar-footer {
+    padding: 15px 20px;
+    background: var(--primary-hover); 
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* --- MAP CONTAINER (Right Column) --- */
+#map-container { 
+    flex: 1; 
+    position: relative; 
+    height: 100%; 
+}
+#map { height: 100%; width: 100%; z-index: 1; }
+
+/* --- ACCORDION --- */
+.accordion-item { 
+    background: white; 
+    border-radius: var(--radius); 
+    margin-bottom: 10px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    overflow: visible; 
+    position: relative; 
+    color: var(--text-dark); 
+}
+
+.accordion-header {
+    padding: 15px; cursor: pointer; font-weight: 600; background: white;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.2s; border-bottom: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text-dark);
+}
+
+.accordion-header.active { 
+    border-bottom: 1px solid #eee; 
+    background: #f9f9f9; 
+    color: var(--primary-color); 
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.accordion-header:hover { background: #f0f0f0; }
+.accordion-header .arrow { transition: transform 0.3s; }
+.accordion-header.active .arrow { transform: rotate(180deg); }
+
+.accordion-body { 
+    display: none; 
+    padding: 15px; 
+    background: white; 
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+.accordion-body.open { display: block; }
+
+/* --- CONTROLS --- */
+input, select {
+    width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd;
+    border-radius: 6px; box-sizing: border-box; font-size: 14px;
+}
+.btn {
+    width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer;
+    font-weight: bold; font-size: 14px; transition: 0.2s; display: flex;
+    justify-content: center; align-items: center; gap: 8px; text-decoration: none;
+}
+.btn-primary { background: var(--primary-color); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+
+/* Standard Grey Button */
+.btn-grey-small {
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    width: 80%; margin: 0 auto; padding: 8px; font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-grey-small:hover { background: rgba(255,255,255,0.2); }
+
+/* --- NEW EXPORT BUTTON --- */
+.btn-export {
+    background: #27ae60; 
+    color: white; 
+    width: 80%; 
+    margin: 0 auto; 
+    padding: 8px; 
+    font-size: 13px;
+    border: 1px solid #2ecc71;
+}
+.btn-export:hover { background: #2ecc71; }
+
+
+/* RESET WRAPPER (Centered Clear All) */
+.btn-reset-wrapper { 
+    text-align: center; 
+    margin-bottom: 15px; 
+}
+
+
+/* --- SUGGESTIONS (DROPDOWN) --- */
+#suggestions {
+    position: absolute; 
+    background: white; 
+    width: 100%; 
+    max-height: 300px; 
+    overflow-y: auto; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 6px 6px; 
+    z-index: 9999; 
+    left: 0;
+    top: 100%;
+}
+
+.suggestion-item { 
+    padding: 12px 15px; 
+    cursor: pointer; 
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    white-space: normal; 
+    word-wrap: break-word;
+    line-height: 1.4;
+    color: #333; 
+    background: #fff;
+}
+.suggestion-item:hover { background: #f0f0f0; }
+
+/* --- POPUP STYLING --- */
+.leaflet-popup-content-wrapper { 
+    background: white; border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.3); padding: 0; overflow: hidden; 
+}
+.leaflet-popup-content { margin: 0; padding: 0; min-width: 280px; max-width: 350px !important; }
+
+.leaflet-container a.leaflet-popup-close-button {
+    color: #000 !important; font-weight: bold !important; font-size: 18px !important;
+    background: rgba(255, 255, 255, 0.9) !important; border-radius: 50%;
+    width: 30px !important; height: 30px !important;
+    display: flex !important; justify-content: center; align-items: center;
+    top: 10px !important; right: 10px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); text-decoration: none !important; z-index: 1000;
+}
+.leaflet-container a.leaflet-popup-close-button:hover { background: #fff !important; color: #c00 !important; cursor: pointer; }
+
+.popup-card { background: white; padding: 0; border-radius: 10px; font-family: 'Segoe UI', sans-serif; font-size: 14px; color: #333; }
+.image-gallery { position: relative; height: 160px; background: #eee; border-radius: 10px 10px 0 0; }
+.gallery-image { width: 100%; height: 100%; object-fit: cover; display: none; }
+.gallery-image.active { display: block; }
+.gallery-controls {
+    position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;
+}
+.gallery-nav { color: white; cursor: pointer; font-size: 12px; padding: 0 4px; }
+.gallery-count { color: white; font-size: 11px; line-height: 16px; }
+
+.popup-header { padding: 15px 15px 10px 15px; background: white; border-bottom: 2px solid #e0e0e0; }
+.popup-title { font-size: 1.1rem; font-weight: bold; color: #222; margin: 0; }
+
+/* --- POPUP BODY & SCROLLBAR --- */
+.popup-body { 
+    padding: 15px; 
+    max-height: 150px; 
+    overflow-y: auto; 
+}
+
+/* Force visible scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
+.popup-body::-webkit-scrollbar {
+    width: 8px;
+    display: block;
+}
+.popup-body::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 4px;
+}
+.popup-body::-webkit-scrollbar-thumb {
+    background: #ccc; 
+    border-radius: 4px;
+}
+.popup-body::-webkit-scrollbar-thumb:hover {
+    background: #888; 
+}
+
+.rec-metric {
+    background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 4px;
+    text-align: center; font-weight: bold; font-size: 1rem; margin-bottom: 15px;
+    border: 1px solid #c8e6c9;
+}
+
+.chart-image-container { text-align: center; margin-bottom: 10px; display: block; }
+.chart-image {
+    width: 100%; max-width: 320px; height: auto; border-radius: 4px;
+    shape-rendering: geometricPrecision; image-rendering: -webkit-optimize-contrast;
+}
+
+.meta-info { font-size: 12px; color: #555; margin-bottom: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+.btn-row { display: flex; justify-content: center; gap: 4%; }
+.action-btn {
+    display: inline-block; width: 100%; padding: 8px; text-align: center;
+    border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+    margin-top: 4px; border: none; cursor: pointer; transition: 0.2s; box-sizing: border-box;
+}
+.btn-route { background: var(--accent-color); color: white; }
+.btn-route:hover { background: #01579B; }
+
+/* --- PAN CONTROLS --- */
+.leaflet-control-pan {
+    background: #fff; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    padding: 4px; display: grid; grid-template-columns: 24px 24px 24px;
+    grid-template-rows: 24px 24px 24px; gap: 2px;
+    border: 2px solid rgba(0,0,0,0.2); background-clip: padding-box;
+}
+.pan-btn {
+    background: #f4f4f4; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; border-radius: 2px; font-size: 12px; color: #444; transition: background 0.2s;
+}
+.pan-btn:hover { background: #d0d0d0; color: #000; }
+.pan-btn:active { background: #ccc; }
+.pan-up { grid-column: 2; grid-row: 1; }
+.pan-left { grid-column: 1; grid-row: 2; }
+.pan-center { grid-column: 2; grid-row: 2; background: white; font-size: 10px; }
+.pan-right { grid-column: 3; grid-row: 2; }
+.pan-down { grid-column: 2; grid-row: 3; }
+
+/* --- TOOLTIPS --- */
+.rank-tooltip {
+    background: #333; color: white; border: none; border-radius: 4px;
+    font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.rank-tooltip::before { border-top-color: #333; }
+
+/* --- LOADING & TOAST --- */
+#loading-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.7); z-index: 9999;
+    display: none; justify-content: center; align-items: center; flex-direction: column;
+}
+.spinner {
+    width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--primary-color);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #333; color: white; padding: 12px 24px; border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; display: none; opacity: 0; transition: opacity 0.3s;
+}
+#toast.show { display: block; opacity: 1; }
+
+/* --- UPDATED Facility List --- */
+.facility-list { 
+    max-height: 160px;
+    overflow-y: auto; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    padding: 8px; 
+    background: #fff;
+    color: var(--text-dark); /* Ensure checkbox text is dark on white bg */
+}
+.checkbox-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 13px; }
+.checkbox-item input { margin-right: 8px; width: auto; }
+.facility-help-text { font-size: 11px; color: #666; font-style: italic; margin-bottom: 6px; display:block;}
+
+/* --- SPLIT BUTTON GROUP --- */
+.btn-split-group {
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+.btn-split-option {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #eee;
+    color: #555;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.btn-split-option:hover { background: #e0e0e0; }
+.btn-split-option.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* --- CENTRAL MODALS (UPDATED) --- */
+#tie-modal, 
+#nearby-modal, 
+#no-results-modal, 
+#invalid-postcode-modal, 
+#enter-postcode-modal, 
+#select-facility-modal,
+#select-rank-modal,
+#enter-rank-num-modal,
+#no-export-data-modal { /* MATCHED: Added the new modal ID here */
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: white; padding: 25px; border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4); z-index: 10001;
+    width: 350px; text-align: center; display: none;
+    border: 2px solid var(--primary-color);
+}
+
+#tie-modal h3, 
+#nearby-modal h3, 
+#no-results-modal h3, 
+#invalid-postcode-modal h3, 
+#enter-postcode-modal h3, 
+#select-facility-modal h3,
+#select-rank-modal h3,
+#enter-rank-num-modal h3,
+#no-export-data-modal h3 { /* MATCHED: Added the new modal header here */
+    margin-top: 0; color: var(--primary-color); margin-bottom: 10px; 
+}
+
+.tie-list { 
+    max-height: 250px; overflow-y: auto; text-align: left; 
+    margin: 10px 0 15px 0; border: 1px solid #eee; padding: 10px; border-radius: 6px;
+}
+.tie-item { 
+    padding: 10px; border-bottom: 1px solid #eee; 
+    font-size: 14px; display: flex; justify-content: space-between; align-items: center;
+}
+.tie-item:last-child { border-bottom: none; }
+.tie-item:hover { background-color: #f9f9f9; }
+
+.close-modal-btn {
+    background: var(--primary-color);
+    color: white; padding: 10px 20px; border: none;
+    border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;
+    transition: background 0.3s;
+}
+.close-modal-btn:hover { background: var(--primary-hover); }
+
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 10000; display: none;
+}

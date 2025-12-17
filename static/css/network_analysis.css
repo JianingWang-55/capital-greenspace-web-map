@@ -1,0 +1,290 @@
+/*
+ * network_analysis.css
+ * ------------------------------------------------------------------
+ * Stylesheet for the Network Analysis interface.
+ * This file defines the layout and visual elements for the 
+ * isochrone and distance analysis map.
+ * * Key Sections:
+ * - Layout: Split-screen sidebar and map container (matches Interaction Map).
+ * - Controls: Mode selection buttons (Walking, Driving, Bus) with active states.
+ * - Map Elements: Custom legends and high-z-index popup overrides.
+ * - UI Components: Export tools, filters, and reset controls.
+ * ------------------------------------------------------------------
+ */
+
+:root {
+    /* --- THEME COLORS (Matched to Interaction Map) --- */
+    --primary-color: #2c3e50; 
+    --primary-hover: #1a252f;
+    --accent-color: #0288D1;
+    --bg-light: #f8f9fa;
+    --text-dark: #333;
+    --text-light: #ecf0f1;
+    --grey-btn: #95a5a6;
+    --grey-btn-hover: #7f8c8d;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 8px;
+}
+
+body { margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: var(--text-dark); overflow: hidden; }
+
+/* --- LAYOUT --- */
+.layout-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-right: 1px solid #1a252f;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+/* --- UPDATED HEADER (Matched to Interaction Map) --- */
+.sidebar-header {
+    padding: 15px 20px;
+    background: var(--primary-hover);
+    color: white;
+    display: flex;
+    justify-content: center; /* CHANGED: Center the Title */
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative; /* REQUIRED for absolute button positioning */
+}
+.sidebar-header h2 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+
+/* --- UPDATED HELP BUTTON --- */
+.btn-help-header {
+    color: white;
+    font-size: 1.3rem;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+    display: flex;
+    align-items: center;
+    
+    /* CHANGED: Absolute positioning to pin right */
+    position: absolute; 
+    right: 20px; /* MATCHED: Exact location from interaction_map.css */
+}
+.btn-help-header:hover {
+    color: var(--accent-color);
+}
+
+
+.sidebar-content { 
+    overflow-y: auto; 
+    padding: 20px; /* Matched padding */
+    background: var(--primary-color); 
+    flex: 1; 
+}
+
+.sidebar-footer {
+    padding: 15px 20px;
+    background: var(--primary-hover);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* --- CONTROLS IN SIDEBAR --- */
+.control-section { margin-bottom: 20px; }
+
+.section-label { 
+    display: block; font-size: 12px; font-weight: bold; 
+    color: #95a5a6; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.separator { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0; }
+
+/* === UPDATED BUTTON STYLING (Matching .accordion-header) === */
+.nav-btn {
+    width: 100%;
+    background: white; 
+    color: var(--text-dark); /* #333 */
+    border: none;
+    
+    /* Exact spacing/font match */
+    padding: 15px; 
+    font-weight: 600;
+    font-size: 1rem; /* Standard text size */
+    
+    cursor: pointer;
+    border-radius: var(--radius); /* 8px */
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Exact shadow match */
+    
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+/* Hover Effect */
+.nav-btn:hover { 
+    background-color: #f0f0f0; 
+    transform: translateY(-1px);
+}
+
+/* Active States (Colored backgrounds for distinct modes) */
+.nav-btn.active-walk { 
+    background-color: #228B22; 
+    color: white; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.nav-btn.active-drive { 
+    background-color: #00008B; 
+    color: white; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.nav-btn.active-bus { 
+    background-color: #800080; 
+    color: white; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Dropdown */
+.filter-select {
+    width: 100%; padding: 10px; border-radius: 6px;
+    border: 1px solid #ddd; font-size: 14px; margin-bottom: 10px;
+    background: white;
+}
+
+.helper-text { font-size: 12px; color: #bdc3c7; margin-bottom: 15px; font-style: italic; }
+
+/* Reset Button */
+.btn-reset {
+    width: 100%; padding: 10px; border: none;
+    background: #e74c3c; color: white;
+    border-radius: 6px; cursor: pointer;
+    font-weight: bold; font-size: 14px;
+    transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.btn-reset:hover { background: #c0392b; }
+
+/* Back to Home Button */
+.btn-grey-small {
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    width: 80%; margin: 0 auto; padding: 8px; font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+    text-decoration: none; border-radius: 6px;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+    font-weight: bold;
+}
+.btn-grey-small:hover { background: rgba(255,255,255,0.2); }
+
+/* --- MAP --- */
+#map { flex: 1; height: 100%; z-index: 1; }
+
+/* --- LEGEND (On Map) --- */
+.legend { 
+    background: white; 
+    padding: 12px; 
+    border-radius: var(--radius); 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
+    color: #333; 
+    font-size: 12px;
+    line-height: 1.6;
+}
+.legend i { 
+    width: 16px; height: 16px; 
+    float: left; margin-right: 8px; 
+    opacity: 0.8; border-radius: 2px;
+}
+
+/* --- POPUPS & FIXES --- */
+
+/* 1. Critical: Boost Z-Index to stay above points (which are z-index ~700) */
+.leaflet-popup-pane {
+    z-index: 3000 !important; 
+}
+
+/* 2. Wrapper Styling: Ensure opacity is 1 (no transparency) */
+.leaflet-popup-content-wrapper { 
+    background: #ffffff !important; /* Solid white */
+    opacity: 1 !important;          /* Force opacity */
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.3); 
+    padding: 0; 
+    overflow: hidden; 
+}
+
+/* 3. Content Styling */
+.leaflet-popup-content { 
+    margin: 0; 
+    min-width: 250px; 
+    background: #ffffff !important; /* Solid white background */
+}
+
+/* 4. Fix the Arrow Tip Transparency */
+.leaflet-popup-tip {
+    background: #ffffff !important;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+
+/* Popup Close Button (Matched) */
+.leaflet-container a.leaflet-popup-close-button {
+    color: #000 !important; font-weight: bold !important; font-size: 18px !important;
+    background: rgba(255, 255, 255, 0.9) !important; border-radius: 50%;
+    width: 30px !important; height: 30px !important;
+    display: flex !important; justify-content: center; align-items: center;
+    top: 10px !important; right: 10px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); text-decoration: none !important; z-index: 1000;
+}
+.leaflet-container a.leaflet-popup-close-button:hover { background: #fff !important; color: #c00 !important; cursor: pointer; }
+
+/* Internal Popup Styles */
+.park-popup { 
+    padding: 15px; 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #ffffff; /* Ensure inner div is solid */
+}
+.park-popup h3 { margin: 0 0 10px 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: var(--primary-color); }
+.info-row { margin-bottom: 5px; font-size: 13px; color: #555; }
+.gallery-button { 
+    display: block; margin-top: 12px; padding: 8px 0; 
+    color: white !important; text-align: center; text-decoration: none; 
+    border-radius: 4px; font-weight: bold; font-size: 12px; 
+}
+
+/* --- EXPORT BUTTON --- */
+.btn-export {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px; /* Spacing from the dropdown */
+    border: none;
+    background: #0288D1; /* CHANGED: To Requested Blue */
+    color: white;
+    border-radius: var(--radius); /* 8px */
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 8px;
+    transition: background 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-export:hover {
+    background: #0277bd; /* Slightly darker shade of #0288D1 */
+    transform: translateY(-1px);
+}
+
+.btn-export:active {
+    transform: translateY(0);
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+>
+<!--
+  index.html
+
+  Main Index Page 
+
+  Purpose:
+  - Acts as the central landing page for the Capital Green Space Project web map.
+  - Provides users with clear navigation to the four main tools/modules of the project.
+
+  Key Features:
+  - Clean, card-based menu layout with responsive grid design.
+  - Visual emphasis using Font Awesome icons for quick tool recognition.
+  - Hover effects for improved user experience and visual feedback.
+  - Fully responsive: switches from single-column to two-column layout on larger screens.
+
+  Navigation Targets (Flask routes):
+  - simd_map:
+      Greenspace & Deprivation Explorer
+      Explores recreation metrics across 18 parks in Edinburgh in relation to deprivation levels.
+  - interaction_map:
+      Interactive Search Map
+      Allows searching parks by name, scores, user location, and facilities.
+  - network_analysis:
+      Network Analysis Map
+      Visualises walking catchments, driving distances, and nearby bus/bike stops from park centroids.
+  - user_guide:
+      User Guide
+      Describes key functionalities and technical setup of the web application.
+
+  Notes:
+  - This page is intended to be the primary entry point for users.
+  - Styling is self-contained (no external CSS except Font Awesome icons).
+  - Designed for clarity, accessibility, and ease of navigation for both general users
+    and academic demonstration/assessment purposes.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edinburgh Greenspace Web Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50; 
+            --primary-hover: #1a252f;
+            --accent-color: #0288D1;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #ecf0f1;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --radius: 8px;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .container {
+            background-color: white; padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 800px; width: 90%; text-align: center;
+            border-top: 5px solid var(--accent-color); margin: 20px;
+        }
+
+        h1 { color: var(--primary-color); margin-bottom: 10px; font-size: 2rem; }
+        p.subtitle { color: #666; margin-bottom: 40px; font-size: 1.1rem; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+        a.menu-btn {
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 30px; background-color: var(--bg-light);
+            color: var(--primary-color); text-decoration: none;
+            border-radius: var(--radius); border: 1px solid #ddd;
+            transition: all 0.2s ease; text-align: left;
+        }
+
+        a.menu-btn i {
+            margin-right: 25px; font-size: 2.5rem; color: var(--primary-color);
+            min-width: 50px; text-align: center; transition: color 0.2s;
+        }
+
+        a.menu-btn .btn-text { display: flex; flex-direction: column; align-items: flex-start; }
+        a.menu-btn .btn-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 5px; }
+        a.menu-btn .description { font-size: 0.95rem; color: #666; font-weight: normal; line-height: 1.4; }
+
+        a.menu-btn:hover {
+            background-color: var(--primary-color); color: white;
+            border-color: var(--primary-color); transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        a.menu-btn:hover i { color: var(--accent-color); }
+        a.menu-btn:hover .description { color: #bdc3c7; }
+
+        @media (min-width: 768px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fa-solid fa-tree"></i> Recreation Metric For Greenspaces in Edinburgh</h1>
+        <p class="subtitle">Select a tool below to explore the data</p>
+        
+        <div class="menu-grid">
+            <a href="{{ url_for('simd_map') }}" class="menu-btn">
+                <i class="fa-solid fa-layer-group"></i>
+                <div class="btn-text">
+                    <span class="btn-title">Greenspace & Deprivation Explorer</span>
+                    <span class="description">Exploring greenspace recreation metrics across 18 parks in Edinburgh and deprivation level.</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('interaction_map') }}" class="menu-btn">
+                <i class="fa-solid fa-magnifying-glass-location"></i>
+                <div class="btn-text">
+                    <span class="btn-title">Interactive Search</span>
+                    <span class="description">An interactive map for searching parks by name, scores, location, and facilities.</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('network_analysis') }}" class="menu-btn">
+                <i class="fa-solid fa-circle-nodes"></i>
+                <div class="btn-text">
+                    <span class="btn-title">Network Analysis</span>
+                    <span class="description">Showing walking catchments, driving distances, and nearby bus and bike stops from park centroids.</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('user_guide') }}" class="menu-btn">
+                <i class="fa-solid fa-book-open"></i>
+                <div class="btn-text">
+                    <span class="btn-title">User Guide</span>
+                    <span class="description">Outlining key functionalities and technical setup.</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

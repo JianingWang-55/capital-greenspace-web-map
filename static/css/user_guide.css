@@ -1,0 +1,248 @@
+/*
+ * user_guide.css
+ * ------------------------------------------------------------------
+ * Stylesheet for the User Guide Page.
+ * This file defines the visual layout for the help interface, including:
+ * - Layout: Split-screen with a fixed sidebar for navigation and a scrollable content area.
+ * - Navigation: Styled links that highlight the active section.
+ * - Animations: Focus effects (scaling/opacity) on content sections for better readability.
+ * - Typography & Components: Styles for headers, feature boxes, and technical tables.
+ * ------------------------------------------------------------------
+ */
+
+:root {
+    --primary-color: #2c3e50; 
+    --primary-hover: #1a252f;
+    --accent-color: #0288D1; /* Light Blue */
+    --bg-light: #f8f9fa;
+    --text-dark: #333;
+    --text-light: #ecf0f1;
+    --radius: 8px;
+}
+
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+    color: var(--text-dark); 
+    background: #f4f4f4; 
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+/* LAYOUT */
+.layout-wrapper { 
+    display: flex; 
+    height: 100vh; 
+    width: 100vw; 
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 380px; 
+    min-width: 380px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1a252f;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    z-index: 100;
+    position: relative; 
+}
+
+.sidebar-header {
+    padding: 15px 20px;
+    background: var(--primary-hover);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h2 { 
+    margin: 0; 
+    font-size: 1.2rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    color: white; 
+}
+
+.sidebar-nav { 
+    flex: 1; 
+    padding: 20px; 
+    overflow-y: auto; 
+}
+
+/* === NAVIGATION BUTTONS === */
+.nav-link {
+    display: block;
+    width: 100%;
+    background: white; 
+    color: var(--text-dark); 
+    text-decoration: none;
+    border: none;
+    padding: 15px; 
+    font-weight: 600;
+    font-size: 1rem; 
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    transition: all 0.2s ease;
+    box-sizing: border-box; 
+}
+
+.nav-link:hover {
+    background: #f0f0f0; 
+    transform: translateY(-1px);
+}
+
+/* ACTIVE STATE */
+.nav-link.active {
+    background: var(--accent-color); 
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); 
+}
+
+/* === FOOTER === */
+.sidebar-footer {
+    padding: 15px 20px;
+    background: var(--primary-hover);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.btn-grey-small {
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    width: 80%; 
+    margin: 0 auto; 
+    padding: 8px; 
+    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+    text-decoration: none; 
+    border-radius: 6px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.btn-grey-small:hover { background: rgba(255,255,255,0.2); }
+
+/* CONTENT AREA */
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden; 
+    background: #e9e9e9; 
+    scroll-behavior: smooth;
+    padding: 20px 0;
+    position: relative; 
+}
+
+.content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    padding-bottom: 40vh; 
+}
+
+/* TYPOGRAPHY */
+h1 { 
+    color: var(--primary-color); 
+    font-size: 2.2rem; 
+    margin-bottom: 20px; 
+    border-bottom: 4px solid var(--accent-color); 
+    padding-bottom: 10px; 
+}
+
+h2 { 
+    color: var(--primary-color); 
+    margin-top: 0; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+p { 
+    line-height: 1.6; 
+    color: #555; 
+    font-size: 1.05rem; 
+    margin-bottom: 20px; 
+}
+hr { 
+    border: 0; 
+    border-top: 1px solid #ddd; 
+    margin: 40px 0; 
+    opacity: 0.5; 
+}
+
+/* === SECTION ANIMATIONS === */
+.guide-section {
+    position: relative; 
+    transition: all 0.3s ease-out; 
+    opacity: 0.5; 
+    transform: scale(0.96); 
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    margin-bottom: 40px; 
+    cursor: default;
+}
+
+.guide-section.active-focus, 
+.guide-section:hover {
+    opacity: 1;
+    transform: scale(1.05); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15); 
+    border-color: var(--accent-color);
+    z-index: 10;
+}
+
+/* FEATURE BOX */
+.feature-box {
+    background: #f8f9fa;
+    border-left: 5px solid var(--accent-color);
+    padding: 20px;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+.feature-box h3 { margin-top: 0; font-size: 1.1rem; color: #333; }
+.feature-box ul { margin: 0; padding-left: 20px; }
+.feature-box li { margin-bottom: 10px; color: #555; }
+
+/* TECH TABLE */
+.tech-table {
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px;
+}
+.tech-table th, .tech-table td {
+    padding: 12px; 
+    border: 1px solid #ddd; 
+    text-align: left;
+}
+
+.tech-table th { 
+    background: var(--accent-color); 
+    color: white; 
+}
+
+.tech-table tr:nth-child(even) { background: #f9f9f9; }
+
+.footer-note {
+    margin-top: 60px; 
+    text-align: center; 
+    font-size: 0.9rem; 
+    color: #999;
+}

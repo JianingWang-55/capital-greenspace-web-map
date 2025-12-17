@@ -54,44 +54,61 @@ import matplotlib.pyplot as plt
 import os
 import oracledb
 import sys
+import logging
+from pathlib import Path
 
 # ==========================================
 # CONFIGURATION
 # ==========================================
-OUTPUT_DIR = 'barchart' 
+OUTPUT_DIR = 'barchart'
 
 DB_USER = 's2907301'
-DB_PASS = 'lczx5597'
-DB_DSN  = "geoslearn"
+DB_DSN = "geoslearn"
 
 # Chart Styling
-COLORS = ['#36A2EB', '#FFCE56', '#FF6384', '#4BC0C0'] 
+COLORS = ['#36A2EB', '#FFCE56', '#FF6384', '#4BC0C0']
 METRICS = ['Facility Quality', 'Quantity & Variety', 'Safety', 'Accessibility']
+
+
+# ------------------------
+# PASSWORD READER (same as myflaskapp.py)
+# ------------------------
+def get_password(passfile='.ora_student.txt'):
+    """Read Oracle database password from home directory"""
+    home = Path.home()
+    passfile = os.path.join(home, passfile)
+    try:
+        with open(passfile) as f:
+            return f.readline().strip()
+    except FileNotFoundError:
+        logging.error("Password file not found.")
+        sys.exit(1)
+
 
 def fetch_data_from_oracle():
     """
     Connects to the Oracle database and fetches score data.
     """
-    connection = None
-    cursor = None
     try:
         print("Attempting to connect to Oracle...")
-        connection = oracledb.connect(
-            user=DB_USER, 
-            password=DB_PASS, 
+
+        password = get_password()
+
+        with oracledb.connect(
+            user=DB_USER,
+            password=password,
             dsn=DB_DSN,
-            config_dir="/etc/" 
-        )
-        
-        cursor = connection.cursor()
-        sql = """
-            SELECT site_id, site_name, overall_quality_score, 
-                   quantity_variety_score, safety_score, accessibility_score
-            FROM Recreation_Index
-        """
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        
+            config_dir="/etc/"
+        ) as connection:
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT site_id, site_name, overall_quality_score,
+                           quantity_variety_score, safety_score, accessibility_score
+                    FROM Recreation_Index
+                """
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+
         parks = []
         for row in rows:
             parks.append({
@@ -107,9 +124,7 @@ def fetch_data_from_oracle():
     except oracledb.DatabaseError as e:
         print(f"Database Error: {e}")
         return []
-    finally:
-        if cursor: cursor.close()
-        if connection: connection.close()
+
 
 def generate_charts(parks_data):
     """
@@ -127,7 +142,7 @@ def generate_charts(parks_data):
 
     for park in parks_data:
         site_id = park.get('site_id')
-        
+
         scores = [
             float(park.get('quality') or 0),
             float(park.get('quantity') or 0),
@@ -136,27 +151,24 @@ def generate_charts(parks_data):
         ]
 
         # Figure size: 3.5 inch width is good for popups
-        plt.figure(figsize=(3.5, 2.8)) 
-        
+        plt.figure(figsize=(3.5, 2.8))
+
         bars = plt.bar(METRICS, scores, color=COLORS, width=0.65)
-        
+
         plt.ylim(0, 1.15)
         plt.title('Park Scores', fontsize=12, fontweight='bold', color='#333', pad=10)
-        
-        # --- FIX IS HERE ---
-        # rotation=30: Angles the text enough to fit
-        # ha='right': Anchors the text so the END of the word touches the tick mark
+
         plt.tick_params(axis='x', labelsize=9)
-        plt.xticks(rotation=30, ha='right') 
-        
+        plt.xticks(rotation=30, ha='right')
+
         plt.tick_params(axis='y', labelsize=9)
-        
+
         # Add values on top of bars
         for bar in bars:
             height = bar.get_height()
             if height > 0:
                 plt.text(
-                    bar.get_x() + bar.get_width()/2., 
+                    bar.get_x() + bar.get_width() / 2.,
                     height + 0.02,
                     f'{height:.2f}',
                     ha='center', va='bottom', fontsize=9, fontweight='bold', color='#444'
@@ -172,9 +184,10 @@ def generate_charts(parks_data):
         # Save as SVG
         filename = os.path.join(OUTPUT_DIR, f"{site_id}.svg")
         plt.savefig(filename, format='svg', bbox_inches='tight')
-        plt.close() 
-        
+        plt.close()
+
     print(f"Success! {len(parks_data)} charts saved to {OUTPUT_DIR}/")
+
 
 if __name__ == "__main__":
     current_dir = os.getcwd()

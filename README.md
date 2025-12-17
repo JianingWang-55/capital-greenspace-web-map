@@ -63,6 +63,7 @@ web_map/
 ├── simd_edinburgh.geojson
 ├── simd_edinburgh_cleaned.geojson
 └── README.md
+```
 
 ---
 

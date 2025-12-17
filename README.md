@@ -7,7 +7,6 @@ into an interactive dashboard, with a **specific focus on recreational facilitie
 ---
 
 ## Table of Contents
-- [Overview](#-overview)
 - [Project Structure](#-project-structure)
 - [Tech Stack](#-tech-stack)
 - [Data Sources](#-data-sources)

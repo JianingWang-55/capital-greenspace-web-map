@@ -106,7 +106,8 @@ ed_mmap_transpt_mar19
 
 ## Notes
 
-Park photos on the web map were taken by group members and have been uploaded to the project server for use in the web application.
+Bar charts displayed on the web map are generated using data from the Oracle database.  
+Park photographs shown on the web map were taken by group members and have been uploaded to the project server for use in the web application.  
 To keep the GitHub repository lightweight and focused on code and documentation, these image files are not included in this repository.
 
 ---

@@ -174,8 +174,6 @@ function renderLayers(pointsData, areasData, busData) {
                 onEachFeature: function(feature, layer) {
                     var p = feature.properties;
                     
-                    var btnColor = '#FF1493'; 
-                    var galleryBtn = p.gallery_url ? `<a href="${p.gallery_url}" target="_blank" class="gallery-button" style="background:${btnColor}">View Gallery</a>` : '';
                     var content = `
                         <div class="park-popup">
                             <h3>${p.site_name || p.name}</h3>
@@ -183,7 +181,6 @@ function renderLayers(pointsData, areasData, busData) {
                             <div class="info-row"><b>Recreation Index:</b> ${p.recreation_score || 'N/A'}</div>
                             <div class="info-row"><b>SIMD Decile:</b> ${p.simd_decile || 'N/A'}</div>
                             <div class="info-row"><b>Postcode:</b> ${p.postcode || 'N/A'}</div>
-                            ${galleryBtn}
                         </div>`;
                     layer.bindPopup(content);
 
@@ -253,9 +250,7 @@ function addStopsForFeature(props, radius) {
 
 function setupPointInteraction(feature, layer) {
     var p = feature.properties;
-    var btnColor = (currentMode === 'walk') ? '#28a745' : '#00008B';
-    var galleryBtn = p.gallery_url ? `<a href="${p.gallery_url}" target="_blank" class="gallery-button" style="background:${btnColor}">View Gallery</a>` : '';
-    var content = `<div class="park-popup"><h3>${p.site_name || p.name}</h3><div class="info-row"><b>Site ID:</b> ${p.site_id}</div><div class="info-row"><b>Recreation Index:</b> ${p.recreation_score || 'N/A'}</div><div class="info-row"><b>SIMD Decile:</b> ${p.simd_decile || 'N/A'}</div><div class="info-row"><b>Postcode:</b> ${p.postcode || 'N/A'}</div>${galleryBtn}</div>`;
+    var content = `<div class="park-popup"><h3>${p.site_name || p.name}</h3><div class="info-row"><b>Site ID:</b> ${p.site_id}</div><div class="info-row"><b>Recreation Index:</b> ${p.recreation_score || 'N/A'}</div><div class="info-row"><b>SIMD Decile:</b> ${p.simd_decile || 'N/A'}</div><div class="info-row"><b>Postcode:</b> ${p.postcode || 'N/A'}</div></div>`;
     layer.bindPopup(content);
     layer.on({
         mouseover: function() { this.setStyle({color: '#ffff00', weight: 3}); },
